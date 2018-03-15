@@ -1,0 +1,376 @@
+---
+title: "Model Comparisons- American Novels"
+author: "Jessica Young"
+date: "March 6, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE}
+load("C:/Users/jyoung22.ADND/Documents/Network Analysis/rmkModels.RData")
+library(caret)
+library(rminer)
+library(stringr)
+library(dplyr)
+library(reshape2)
+library(foreach)
+library(doParallel)
+library(parallel)
+library(ggplot2)
+library(car)
+```
+```{r,eval=F,echo=F}
+amer_novels = read.csv("C:/Users/jyoung22.ADND/Documents/Network Analysis/REVIEWS_PAIRS_ALLDATA.csv")
+amer_novels$connected = ifelse(amer_novels$connections_books>0,1,0)
+
+amer_novels$BothBlack = ifelse(amer_novels$BLACK1==1 & amer_novels$BLACK2==1,1,0)
+amer_novels$BothWhite = ifelse(amer_novels$WHITE1==1 & amer_novels$WHITE2==1,1,0)
+amer_novels$BothPOC = ifelse(amer_novels$POC1==1  &amer_novels$POC2==1,1,0)
+
+amer_novels$BothMale = ifelse(amer_novels$Male1==1 &amer_novels$Male2==1,1,0)
+amer_novels$BothFemale = ifelse(amer_novels$Female1==1&amer_novels$Female2==1,1,0)
+
+amer_novels$P_0_Match = ifelse(amer_novels$PUB2_0_1==1&amer_novels$PUB2_0_2==1,1,0)
+amer_novels$P_1_Match = ifelse(amer_novels$PUB2_1_1==1&amer_novels$PUB2_1_2==1,1,0)
+amer_novels$P_2_Match = ifelse(amer_novels$PUB2_2_1==1&amer_novels$PUB2_2_2==1,1,0)
+amer_novels$P_3_Match = ifelse(amer_novels$PUB2_3_1==1&amer_novels$PUB2_3_2==1,1,0)
+amer_novels$P_4_Match = ifelse(amer_novels$PUB2_4_1==1&amer_novels$PUB2_4_2==1,1,0)
+amer_novels$P_5_Match = ifelse(amer_novels$PUB2_5_1==1&amer_novels$PUB2_5_2==1,1,0)
+amer_novels$P_6_Match = ifelse(amer_novels$PUB2_6_1==1&amer_novels$PUB2_6_2==1,1,0)
+amer_novels$P_7_Match = ifelse(amer_novels$PUB2_7_1==1&amer_novels$PUB2_7_2==1,1,0)
+amer_novels$P_8_Match = ifelse(amer_novels$PUB2_8_1==1&amer_novels$PUB2_8_2==1,1,0)
+amer_novels$P_9_Match = ifelse(amer_novels$PUB2_9_1==1&amer_novels$PUB2_9_2==1,1,0)
+amer_novels$P_10_Match = ifelse(amer_novels$PUB2_10_1==1&amer_novels$PUB2_10_2==1,1,0)
+
+
+amer_novels$RaceMatch = ifelse(amer_novels$BothBlack==1 |amer_novels$BothWhite==1 | amer_novels$BothPOC==1,1,0)
+amer_novels$GenderMatch = ifelse(amer_novels$BothMale==1 |amer_novels$BothFemale==1,1,0)
+
+amer_novels = na.omit(amer_novels)
+```
+
+Model for 1965-1970
+
+```{r, eval=F}
+a_1 = amer_novels %>%
+      filter(Years=="65-70")
+  
+            log_model1 = train(connections_books~ BothBlack + BothWhite + BothPOC + BothMale + BothFemale +
+                                  ACAD_Match + BLACK_Match + ELITE_Match + GENRE_Match + LIT_Match + MAIN_Match + MISC_Match + TRADE_Match + nan_Match + 
+                                  P_0_Match + P_1_Match + P_2_Match + P_3_Match + P_4_Match + P_5_Match + P_6_Match + P_7_Match + P_8_Match + P_9_Match + P_10_Match,
+                             data = a_1,
+                           method="glm",
+                           family="poisson",
+                           trControl=trainControl(
+                             method='cv',number=10
+                           ))
+
+            
+```
+```{r}            
+            summary(log_model1)
+```
+
+
+Model for 1971-1975
+
+```{r, eval=F}
+a_2 = amer_novels %>%
+      filter(Years=="71-75")
+
+    ## BOTH MATCH  version            
+            log_model2 = train(connections_books~ BothBlack + BothWhite + BothPOC + BothMale + BothFemale +
+                                  ACAD_Match + BLACK_Match + ELITE_Match + GENRE_Match + LIT_Match + MAIN_Match + MISC_Match + TRADE_Match + nan_Match + 
+                                  P_0_Match + P_1_Match + P_2_Match + P_3_Match + P_4_Match + P_5_Match + P_6_Match + P_7_Match + P_8_Match + P_9_Match + P_10_Match,
+                             data = a_2,
+                           method="glm",
+                           family="poisson",
+                           trControl=trainControl(
+                             method='cv',number=10
+                           ))
+```
+```{r}            
+            summary(log_model2)
+```
+
+
+Model for 1976-1980
+
+```{r, eval=F}
+a_3 = amer_novels %>%
+      filter(Years=="76-80")
+
+
+    ## BOTH MATCH  version            
+            log_model3 = train(connections_books~ BothBlack + BothWhite + BothPOC + BothMale + BothFemale +
+                                  ACAD_Match + BLACK_Match + ELITE_Match + GENRE_Match + LIT_Match + MAIN_Match + MISC_Match + TRADE_Match + nan_Match + 
+                                  P_0_Match + P_1_Match + P_2_Match + P_3_Match + P_4_Match + P_5_Match + P_6_Match + P_7_Match + P_8_Match + P_9_Match + P_10_Match,
+                             data = a_3,
+                           method="glm",
+                           family="poisson",
+                           trControl=trainControl(
+                             method='cv',number=10
+                           ))
+```
+```{r}            
+            summary(log_model3)
+```
+
+Model for 1981-1985
+
+```{r, eval=F}
+a_4 = amer_novels %>%
+      filter(Years=="81-85")
+
+  
+    ## BOTH MATCH  version            
+            log_model4 = train(connections_books~ BothBlack + BothWhite + BothPOC + BothMale + BothFemale +
+                                  ACAD_Match + BLACK_Match + ELITE_Match + GENRE_Match + LIT_Match + MAIN_Match + MISC_Match + TRADE_Match + nan_Match + 
+                                  P_0_Match + P_1_Match + P_2_Match + P_3_Match + P_4_Match + P_5_Match + P_6_Match + P_7_Match + P_8_Match + P_9_Match + P_10_Match,
+                             data = a_4,
+                           method="glm",
+                           family="poisson",
+                           trControl=trainControl(
+                             method='cv',number=10
+                           ))
+```
+```{r}            
+            summary(log_model4)
+```
+
+
+Model for 1986-1990
+
+```{r, eval=F}
+a_5 = amer_novels %>%
+      filter(Years=="86-90")
+  
+    ## BOTH MATCH  version            
+            log_model5 = train(connections_books~ BothBlack + BothWhite + BothPOC + BothMale + BothFemale +
+                                  ACAD_Match + BLACK_Match + ELITE_Match + GENRE_Match + LIT_Match + MAIN_Match + MISC_Match + TRADE_Match + nan_Match + 
+                                  P_0_Match + P_1_Match + P_2_Match + P_3_Match + P_4_Match + P_5_Match + P_6_Match + P_7_Match + P_8_Match + P_9_Match + P_10_Match,
+                             data = a_5,
+                           method="glm",
+                           family="poisson",
+                           trControl=trainControl(
+                             method='cv',number=10
+                           ))
+```
+```{r}            
+            summary(log_model5)
+```
+
+Model for 1991-1995
+
+```{r, eval=F}
+a_6 = amer_novels %>%
+      filter(Years=="91-95")
+  
+    ## BOTH MATCH  version            
+            log_model6 = train(connections_books~ BothBlack + BothWhite + BothPOC + BothMale + BothFemale +
+                                  ACAD_Match + BLACK_Match + ELITE_Match + GENRE_Match + LIT_Match + MAIN_Match + MISC_Match + TRADE_Match + nan_Match + 
+                                  P_0_Match + P_1_Match + P_2_Match + P_3_Match + P_4_Match + P_5_Match + P_6_Match + P_7_Match + P_8_Match + P_9_Match + P_10_Match,
+                             data = a_6,
+                           method="glm",
+                           family="poisson",
+                           trControl=trainControl(
+                             method='cv',number=10
+                           ))
+```
+```{r}            
+            summary(log_model6)
+```
+
+Model for 1996-2000
+
+```{r, eval=F}
+a_7 = amer_novels %>%
+      filter(Years=="96-00")
+  
+    ## BOTH MATCH  version            
+            log_model7 = train(connections_books~ BothBlack + BothWhite + BothPOC + BothMale + BothFemale +
+                                  ACAD_Match + BLACK_Match + ELITE_Match + GENRE_Match + LIT_Match + MAIN_Match + MISC_Match + TRADE_Match + nan_Match + 
+                                  P_0_Match + P_1_Match + P_2_Match + P_3_Match + P_4_Match + P_5_Match + P_6_Match + P_7_Match + P_8_Match + P_9_Match + P_10_Match,
+                             data = a_7,
+                           method="glm",
+                           family="poisson",
+                           trControl=trainControl(
+                             method='cv',number=10
+                           ))
+```
+```{r}
+            summary(log_model7)
+```
+
+
+```{r, eval=F}
+# add all model info into one df
+model_over_time = 
+  bind_rows(cbind(cbind(cbind(Coefficient=rownames(summary(log_model1)$coefficients),data.frame(summary(log_model1)$coefficients)),Years='65-70'),Year=1),
+            cbind(cbind(cbind(Coefficient=rownames(summary(log_model2)$coefficients),data.frame(summary(log_model2)$coefficients)),Years='71-75'),Year=2),
+            cbind(cbind(cbind(Coefficient=rownames(summary(log_model3)$coefficients),data.frame(summary(log_model3)$coefficients)),Years='76-80'),Year=3),
+            cbind(cbind(cbind(Coefficient=rownames(summary(log_model4)$coefficients),data.frame(summary(log_model4)$coefficients)),Years='81-85'),Year=4),
+            cbind(cbind(cbind(Coefficient=rownames(summary(log_model5)$coefficients),data.frame(summary(log_model5)$coefficients)),Years='86-90'),Year=5),
+            cbind(cbind(cbind(Coefficient=rownames(summary(log_model6)$coefficients),data.frame(summary(log_model6)$coefficients)),Years='91-95'),Year=6),
+            cbind(cbind(cbind(Coefficient=rownames(summary(log_model7)$coefficients),data.frame(summary(log_model7)$coefficients)),Years='96-00'),Year=7))
+
+model_over_time$Significance_5 = ifelse(model_over_time$Pr...z..<.05,'*','')
+model_over_time$Significance_5_Meaning = ifelse(model_over_time$Pr...z..<.05,'Significant','Not Significant')
+model_over_time$Significance_10 = ifelse(model_over_time$Pr...z..<.1,'*','')
+model_over_time$Significance_10_Meaning = ifelse(model_over_time$Pr...z..<.1,'Significant','Not Significant')
+
+# create a type column
+model_over_time$Type = ifelse(model_over_time$Coefficient=='BothMale'|model_over_time$Coefficient=='BothFemale','Gender',
+                            ifelse(model_over_time$Coefficient=='BothBlack'|model_over_time$Coefficient=='BothPOC'|model_over_time$Coefficient=='BothWhite','Race',
+                                   ifelse(model_over_time$Coefficient=='(Intercept)','Intercept',
+                                                 ifelse(model_over_time$Coefficient=='ACAD_Match'|model_over_time$Coefficient=='BLACK_Match'|
+                                                          model_over_time$Coefficient=='ELITE_Match'|model_over_time$Coefficient=='GENRE_Match'|
+                                                          model_over_time$Coefficient=='LIT_Match'|model_over_time$Coefficient=='MAIN_Match'|
+                                                          model_over_time$Coefficient=='MISC_Match'|model_over_time$Coefficient=='TRADE_Match'|
+                                                          model_over_time$Coefficient=='nan_Match','Journal_Type','Publisher'))))
+```
+```{r, echo=F}
+ggplot(filter(model_over_time, Type=='Gender'), aes(x=Year, y=Estimate, colour=Coefficient))+
+  geom_point()+
+  geom_line()+
+  geom_text(aes(label=Significance_5, size=3),position=position_dodge(width=0),hjust=1.5, show.legend = F)+
+  scale_x_continuous(breaks=model_over_time$Year, labels=model_over_time$Years)+
+  theme(legend.position = 'bottom')+
+  labs(title='Gender Coefficients, 1950-2000',
+       caption='* denotes statistical significance at p=.05',
+       x='Years',
+       y='Coefficient Estimate')+
+  guides(colour=guide_legend(title=NULL))
+
+
+ggplot(filter(model_over_time, Type=='Race'), aes(x=Year, y=Estimate, colour=Coefficient))+
+  geom_point()+
+  geom_line()+
+  geom_text(aes(label=Significance_5, size=3),position=position_dodge(width=0),hjust=1.5, show.legend = F)+
+  scale_x_continuous(breaks=model_over_time$Year, labels=model_over_time$Years)+
+  theme(legend.position = 'bottom')+
+  labs(title='Race Coefficients, 1950-2000',
+       caption='* denotes statistical significance at p=.05',
+       x='Years',
+       y='Coefficient Estimate')+
+  guides(colour=guide_legend(title=NULL))
+
+
+ggplot(filter(model_over_time, Type=='Journal_Type'), aes(x=Year, y=Estimate, colour=Coefficient))+
+  geom_point()+
+  geom_line()+
+  geom_text(aes(label=Significance_5, size=3),position=position_dodge(width=0),hjust=1.5, show.legend = F)+
+  scale_x_continuous(breaks=model_over_time$Year, labels=model_over_time$Years)+
+  theme(legend.position = 'bottom')+
+  labs(title='Journal Coefficients, 1950-2000',
+       caption='* denotes statistical significance at p=.05',
+       x='Years',
+       y='Coefficient Estimate')+
+  guides(colour=guide_legend(title=NULL))
+
+ggplot(filter(model_over_time, Type=='Publisher'), aes(x=Year, y=Estimate, colour=Coefficient))+
+  geom_point()+
+  geom_line()+
+  geom_text(aes(label=Significance_5, size=3),position=position_dodge(width=0),hjust=1.5, show.legend = F)+
+  scale_x_continuous(breaks=model_over_time$Year, labels=model_over_time$Years)+
+  theme(legend.position = 'bottom')+
+  labs(title='Publisher Coefficients, 1950-2000',
+       caption='* denotes statistical significance at p=.05',
+       x='Years',
+       y='Coefficient Estimate')+
+  guides(colour=guide_legend(title=NULL))
+
+```
+
+```{r}
+# read in node data
+n = read.csv('C:/Users/jyoung22.ADND/Documents/Network Analysis/Eigen Analysis/REVIEWS_1965_2000_NODES_METADATA_EIGENS.csv')
+n1 = read.csv('C:/Users/jyoung22.ADND/Documents/Network Analysis/Eigen Analysis/REVIEWS_1965_1970_NODES_METADATA_EIGENS.csv')
+n2 = read.csv('C:/Users/jyoung22.ADND/Documents/Network Analysis/Eigen Analysis/REVIEWS_1971_1975_NODES_METADATA_EIGENS.csv')
+n3 = read.csv('C:/Users/jyoung22.ADND/Documents/Network Analysis/Eigen Analysis/REVIEWS_1976_1980_NODES_METADATA_EIGENS.csv')
+n4 = read.csv('C:/Users/jyoung22.ADND/Documents/Network Analysis/Eigen Analysis/REVIEWS_1981_1985_NODES_METADATA_EIGENS.csv')
+n5 = read.csv('C:/Users/jyoung22.ADND/Documents/Network Analysis/Eigen Analysis/REVIEWS_1986_1990_NODES_METADATA_EIGENS.csv')
+n6 = read.csv('C:/Users/jyoung22.ADND/Documents/Network Analysis/Eigen Analysis/REVIEWS_1991_1995_NODES_METADATA_EIGENS.csv')
+n7 = read.csv('C:/Users/jyoung22.ADND/Documents/Network Analysis/Eigen Analysis/REVIEWS_1996_2000_NODES_METADATA_EIGENS.csv')
+
+n$GENDER = factor(ifelse(n$GENDER==1, 'Male',
+                  ifelse(n$GENDER==0, 'Female',NA)))
+
+n$RACE = factor(ifelse(n$RACE==1, 'Black',
+                  ifelse(n$RACE==0, 'POC',
+                         ifelse(n$RACE==2, 'White',NA))))
+
+n$Uni_Eig = (n$EIGEN-mean(n$EIGEN))/(sqrt(length(n$EIGEN-1)*var(n$EIGEN)))
+n$Std_Eig = (n$EIGEN-mean(n$EIGEN))/(sqrt(var(n$EIGEN)))
+n$Cub_Eig = (n$EIGEN-min(n$EIGEN))/(max(n$EIGEN)-min(n$EIGEN))
+
+ggplot(n, aes(x=EIGEN))+geom_density()
+
+par(mfrow=c(2,2))
+plot(n$EIGEN, main='Non-Standardized')
+plot(n$Uni_Eig, main='Unitized')
+plot(n$Std_Eig, main='Standardized')
+plot(n$Uni_Eig, main='Cubitized')
+par(mfrow=c(1,1))
+# bind togetehr in one DF
+node_measures = bind_rows(n1, n2, n3, n4, n5, n6, n7)
+
+```
+
+
+```{r}
+ggplot(na.omit(n), aes(x=YEAR, y=EIGENS_SCALED, colour=GENDER))+
+  facet_wrap(~RACE)+
+  geom_smooth()+
+  geom_point()+
+  ggtitle('Eigen Scores by Race and Gender')
+
+ggplot(na.omit(n), aes(x=YEAR, y=EIGEN, colour=GENDER))+
+  facet_wrap(~RACE)+
+  geom_smooth()+
+  geom_point()+
+  ggtitle('Eigen Scores by Race and Gender')
+```
+
+```{r}
+library(corrplot)
+corrplot(cor(amer_novels[,c('BothBlack' , 'BothWhite' , 'BothPOC' , 'BothMale' , 'BothFemale' ,
+        'ACAD_Match' , 'BLACK_Match' , 'ELITE_Match' , 'GENRE_Match' , 'LIT_Match' , 'MAIN_Match' , 'MISC_Match' , 'TRADE_Match' , 'nan_Match' , 
+        'P_0_Match' , 'P_1_Match' , 'P_2_Match' , 'P_3_Match' , 'P_4_Match' , 'P_5_Match' , 'P_6_Match' , 'P_7_Match' , 'P_8_Match' , 'P_9_Match' ,'P_10_Match')]))
+
+corrplot(cor(n[,c(5,6,7,9,10,11,12,13)]))
+```
+
+
+```{r, eval=F}
+n1_model = train(EIGEN~ GENDER + RACE + P2 + YEAR, #ELITE_COUNT + MAIN_COUNT + REVIEWS_COUNT +YEAR,
+                   data = na.omit(n1),
+                   method="glm",
+                   family="gaussian",
+                   trControl=trainControl(
+                     method='cv',number=10
+                   ))
+
+            summary(n1_model)
+            n1_model
+
+n2_model = train(EIGEN~ GENDER + RACE + P2 + YEAR + ELITE_COUNT + MAIN_COUNT +YEAR,
+                   data = na.omit(n1),
+                   method="glm",
+                   family="gaussian",
+                   trControl=trainControl(
+                     method='cv',number=10
+                   ))
+
+            summary(n2_model)
+            n2_model
+            
+```
+```{r}            
+            summary(n1_model)
+```
+
+
