@@ -1,30 +1,13 @@
 cl<-makeCluster(11)
 registerDoParallel(cl)
 
-res <- foreach(i = 1:nrow(amer_novels), .combine=rbind)  %dopar% {
-  
-  
-  res <- rep(NA, 6)
-  
-  res[1] <- novels[which(as.character(novels[,1])==as.character(amer_novels[i,2]) & novels[,9] == 1),7][1] == 0 # white
-  res[2] <- novels[which(as.character(novels[,1])==as.character(amer_novels[i,2]) & novels[,9] == 1),7][1] == 1 #black
-  res[3] <- novels[which(as.character(novels[,1])==as.character(amer_novels[i,2]) & novels[,9] == 1),7][1] == 2# poc
-  res[4] <- novels[which(as.character(novels[,1])==as.character(amer_novels[i,3]) & novels[,9] == 1),7][1] == 0 # white
-  res[5] <- novels[which(as.character(novels[,1])==as.character(amer_novels[i,3]) & novels[,9] == 1),7][1] == 1 #black
-  res[6] <- novels[which(as.character(novels[,1])==as.character(amer_novels[i,3]) & novels[,9] == 1),7][1] == 2# poc
+meta_2 = read.csv('REVIEWS_CANONICAL_TITLES_META3.csv')
 
-  res}
-names(res) = c("WHITE1", "BLACK1", "POC1",
-                "WHITE2", "BLACK2", "POC2")
+meta_2[which(meta_2$P2==""),7] = "na"
 
+meta_2[which(meta_2$P2=="na"),7] = NA
 
-meta_2$GENDER = ifelse(meta_2$GENDER==1, 'Female',
-                       ifelse(meta_2$GENDER==0, 'Male',NA))
-
-meta_2$RACE = ifelse(meta_2$RACE==0, 'White',
-                     ifelse(meta_2$RACE==1, 'Black',
-                            ifelse(meta_2$RACE==2,'POC','NA')))
-
+meta_2$P2 = as.character(meta_2$P2)
 
 res <- foreach(i = 1:nrow(amer_novels), .combine=rbind)  %dopar% {
   
@@ -34,10 +17,10 @@ res <- foreach(i = 1:nrow(amer_novels), .combine=rbind)  %dopar% {
   res[1] = meta_2[which(as.character(meta_2[,1])==as.character(amer_novels[i,2])),4]
   res[2] = meta_2[which(as.character(meta_2[,1])==as.character(amer_novels[i,3])),4]
   
-  res[3] = meta_2[which(as.character(meta_2[,1])==as.character(amer_novels[i,3])),5]
+  res[3] = meta_2[which(as.character(meta_2[,1])==as.character(amer_novels[i,2])),5]
   res[4] = meta_2[which(as.character(meta_2[,1])==as.character(amer_novels[i,3])),5]
 
-  res[5] = meta_2[which(as.character(meta_2[,1])==as.character(amer_novels[i,3])),7]
+  res[5] = meta_2[which(as.character(meta_2[,1])==as.character(amer_novels[i,2])),7]
   res[6] = meta_2[which(as.character(meta_2[,1])==as.character(amer_novels[i,3])),7]
 
   
@@ -91,3 +74,20 @@ amer_novels$PUB2_9_2 = ifelse(amer_novels$`6`=='9',1,0)
 amer_novels$PUB2_10_2 = ifelse(amer_novels$`6`=='10',1,0)
 
 
+# 141 new
+new = unique(as.character(meta_2$TITLE))[!unique(as.character(meta_2$TITLE))%in%unique(as.character(amer_novels$TITLE1))]
+
+old_bye_felicia = unique(as.character(amer_novels$TITLE1))[!unique(as.character(amer_novels$TITLE1))%in%unique(as.character(meta_2$TITLE))]
+
+together_again = data.frame('TitleOld'=c(sort(old_bye_felicia),rep(NA, 119)))
+together_again$TitleNew = sort(new)
+
+together_again
+
+meta_orig = read.csv('REVIEWS_CANONICAL_TITLES_META.csv')
+
+all_titles = data.frame('New'=sort(as.character(meta_2$TITLE)), 'Old'=sort(as.character(meta_orig$TITLE)))
+
+all_titles[!as.character(all_titles$New)%in%as.character(all_titles$Old),1]
+
+all_titles[!as.character(all_titles$Old)%in%as.character(all_titles$New),2]

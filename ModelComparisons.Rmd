@@ -1,16 +1,18 @@
 ---
 title: "Model Comparisons- American Novels"
 author: "Jessica Young"
-date: "March 6, 2018"
-output: html_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r, echo=FALSE}
-load("C:/Users/jyoung22.ADND/Documents/Network Analysis/rmkModels.RData")
+\section{Novel Pairs Regression Analysis}
+
+```{r, echo=FALSE, message=F}
+load("C:/Users/jyoung22.ADND/Documents/Network Analysis/Amer_Novels_Env.RData")
+source("C:/Users/jyoung22.ADND/Documents/Network Analysis/regplot.R")
 library(caret)
 library(rminer)
 library(stringr)
@@ -49,8 +51,26 @@ amer_novels$P_10_Match = ifelse(amer_novels$PUB2_10_1==1&amer_novels$PUB2_10_2==
 amer_novels$RaceMatch = ifelse(amer_novels$BothBlack==1 |amer_novels$BothWhite==1 | amer_novels$BothPOC==1,1,0)
 amer_novels$GenderMatch = ifelse(amer_novels$BothMale==1 |amer_novels$BothFemale==1,1,0)
 
+amer_novels$MatchingRaces = factor(ifelse(amer_novels$BLACK1==1 & amer_novels$BLACK2==1,'Black',
+                                   ifelse(amer_novels$WHITE1==1 & amer_novels$WHITE2==1, 'White',
+                                          ifelse(amer_novels$POC1==1  &amer_novels$POC2==1,'POC','NoMatch'))))
+
+amer_novels$MatchingRaces = factor(amer_novels$MatchingRaces, levels(amer_novels$MatchingRaces)[c(2,1,3,4)])
+
+
 amer_novels = na.omit(amer_novels)
+
 ```
+```{r, echo=F}
+library(corrplot)
+corrplot(cor(amer_novels[,c('BothBlack' , 'BothWhite' , 'BothPOC' , 'BothMale' , 'BothFemale' ,
+        'ACAD_Match' , 'BLACK_Match' , 'ELITE_Match' , 'GENRE_Match' , 'LIT_Match' , 'MAIN_Match' , 'MISC_Match' , 'TRADE_Match' , 'nan_Match' , 
+        'P_0_Match' , 'P_1_Match' , 'P_2_Match' , 'P_3_Match' , 'P_4_Match' , 'P_5_Match' , 'P_6_Match' , 'P_7_Match' , 'P_8_Match' , 'P_9_Match' ,'P_10_Match')]))
+
+    
+ggplot(amer_novels, aes(x=connections_books))+geom_density()
+```
+
 
 Model for 1965-1970
 
@@ -58,7 +78,12 @@ Model for 1965-1970
 a_1 = amer_novels %>%
       filter(Years=="65-70")
   
+ggplot(a_1, aes(x=connections_books))+geom_density()
+
             log_model1 = train(connections_books~ BothBlack + BothWhite + BothPOC + BothMale + BothFemale +
+                                  BothBlack:BothMale + BothBlack:BothFemale + 
+                                  BothWhite:BothMale + BothWhite:BothFemale +
+                                  BothPOC:BothMale + BothPOC:BothFemale +
                                   ACAD_Match + BLACK_Match + ELITE_Match + GENRE_Match + LIT_Match + MAIN_Match + MISC_Match + TRADE_Match + nan_Match + 
                                   P_0_Match + P_1_Match + P_2_Match + P_3_Match + P_4_Match + P_5_Match + P_6_Match + P_7_Match + P_8_Match + P_9_Match + P_10_Match,
                              data = a_1,
@@ -68,7 +93,6 @@ a_1 = amer_novels %>%
                              method='cv',number=10
                            ))
 
-            
 ```
 ```{r}            
             summary(log_model1)
@@ -81,8 +105,13 @@ Model for 1971-1975
 a_2 = amer_novels %>%
       filter(Years=="71-75")
 
+ggplot(a_2, aes(x=connections_books))+geom_density()
+
     ## BOTH MATCH  version            
             log_model2 = train(connections_books~ BothBlack + BothWhite + BothPOC + BothMale + BothFemale +
+                                  BothBlack:BothMale + BothBlack:BothFemale + 
+                                  BothWhite:BothMale + BothWhite:BothFemale +
+                                  BothPOC:BothMale + BothPOC:BothFemale +
                                   ACAD_Match + BLACK_Match + ELITE_Match + GENRE_Match + LIT_Match + MAIN_Match + MISC_Match + TRADE_Match + nan_Match + 
                                   P_0_Match + P_1_Match + P_2_Match + P_3_Match + P_4_Match + P_5_Match + P_6_Match + P_7_Match + P_8_Match + P_9_Match + P_10_Match,
                              data = a_2,
@@ -103,9 +132,12 @@ Model for 1976-1980
 a_3 = amer_novels %>%
       filter(Years=="76-80")
 
-
+ggplot(a_3, aes(x=connections_books))+geom_density()
     ## BOTH MATCH  version            
             log_model3 = train(connections_books~ BothBlack + BothWhite + BothPOC + BothMale + BothFemale +
+                                  BothBlack:BothMale + BothBlack:BothFemale + 
+                                  BothWhite:BothMale + BothWhite:BothFemale +
+                                  BothPOC:BothMale + BothPOC:BothFemale +
                                   ACAD_Match + BLACK_Match + ELITE_Match + GENRE_Match + LIT_Match + MAIN_Match + MISC_Match + TRADE_Match + nan_Match + 
                                   P_0_Match + P_1_Match + P_2_Match + P_3_Match + P_4_Match + P_5_Match + P_6_Match + P_7_Match + P_8_Match + P_9_Match + P_10_Match,
                              data = a_3,
@@ -125,9 +157,12 @@ Model for 1981-1985
 a_4 = amer_novels %>%
       filter(Years=="81-85")
 
-  
+ggplot(a_4, aes(x=connections_books))+geom_density()  
     ## BOTH MATCH  version            
             log_model4 = train(connections_books~ BothBlack + BothWhite + BothPOC + BothMale + BothFemale +
+                                  BothBlack:BothMale + BothBlack:BothFemale + 
+                                  BothWhite:BothMale + BothWhite:BothFemale +
+                                  BothPOC:BothMale + BothPOC:BothFemale +
                                   ACAD_Match + BLACK_Match + ELITE_Match + GENRE_Match + LIT_Match + MAIN_Match + MISC_Match + TRADE_Match + nan_Match + 
                                   P_0_Match + P_1_Match + P_2_Match + P_3_Match + P_4_Match + P_5_Match + P_6_Match + P_7_Match + P_8_Match + P_9_Match + P_10_Match,
                              data = a_4,
@@ -148,8 +183,12 @@ Model for 1986-1990
 a_5 = amer_novels %>%
       filter(Years=="86-90")
   
+ggplot(a_5, aes(x=connections_books))+geom_density()
     ## BOTH MATCH  version            
             log_model5 = train(connections_books~ BothBlack + BothWhite + BothPOC + BothMale + BothFemale +
+                                  BothBlack:BothMale + BothBlack:BothFemale + 
+                                  BothWhite:BothMale + BothWhite:BothFemale +
+                                  BothPOC:BothMale + BothPOC:BothFemale +
                                   ACAD_Match + BLACK_Match + ELITE_Match + GENRE_Match + LIT_Match + MAIN_Match + MISC_Match + TRADE_Match + nan_Match + 
                                   P_0_Match + P_1_Match + P_2_Match + P_3_Match + P_4_Match + P_5_Match + P_6_Match + P_7_Match + P_8_Match + P_9_Match + P_10_Match,
                              data = a_5,
@@ -169,8 +208,12 @@ Model for 1991-1995
 a_6 = amer_novels %>%
       filter(Years=="91-95")
   
+ggplot(a_6, aes(x=connections_books))+geom_density()
     ## BOTH MATCH  version            
             log_model6 = train(connections_books~ BothBlack + BothWhite + BothPOC + BothMale + BothFemale +
+                                  BothBlack:BothMale + BothBlack:BothFemale + 
+                                  BothWhite:BothMale + BothWhite:BothFemale +
+                                  BothPOC:BothMale + BothPOC:BothFemale +
                                   ACAD_Match + BLACK_Match + ELITE_Match + GENRE_Match + LIT_Match + MAIN_Match + MISC_Match + TRADE_Match + nan_Match + 
                                   P_0_Match + P_1_Match + P_2_Match + P_3_Match + P_4_Match + P_5_Match + P_6_Match + P_7_Match + P_8_Match + P_9_Match + P_10_Match,
                              data = a_6,
@@ -190,8 +233,12 @@ Model for 1996-2000
 a_7 = amer_novels %>%
       filter(Years=="96-00")
   
+ggplot(a_7, aes(x=connections_books))+geom_density()
     ## BOTH MATCH  version            
             log_model7 = train(connections_books~ BothBlack + BothWhite + BothPOC + BothMale + BothFemale +
+                                  BothBlack:BothMale + BothBlack:BothFemale + 
+                                  BothWhite:BothMale + BothWhite:BothFemale +
+                                  BothPOC:BothMale + BothPOC:BothFemale +
                                   ACAD_Match + BLACK_Match + ELITE_Match + GENRE_Match + LIT_Match + MAIN_Match + MISC_Match + TRADE_Match + nan_Match + 
                                   P_0_Match + P_1_Match + P_2_Match + P_3_Match + P_4_Match + P_5_Match + P_6_Match + P_7_Match + P_8_Match + P_9_Match + P_10_Match,
                              data = a_7,
@@ -230,7 +277,13 @@ model_over_time$Type = ifelse(model_over_time$Coefficient=='BothMale'|model_over
                                                           model_over_time$Coefficient=='ELITE_Match'|model_over_time$Coefficient=='GENRE_Match'|
                                                           model_over_time$Coefficient=='LIT_Match'|model_over_time$Coefficient=='MAIN_Match'|
                                                           model_over_time$Coefficient=='MISC_Match'|model_over_time$Coefficient=='TRADE_Match'|
-                                                          model_over_time$Coefficient=='nan_Match','Journal_Type','Publisher'))))
+                                                          model_over_time$Coefficient=='nan_Match','Journal_Type',
+                                                        ifelse(model_over_time$Coefficient=='P_0_Match'|model_over_time$Coefficient=='P_1_Match'|
+                                                                 model_over_time$Coefficient=='P_2_Match'|model_over_time$Coefficient=='P_3_Match'|
+                                                                 model_over_time$Coefficient=='P_4_Match'|model_over_time$Coefficient=='P_5_Match'|
+                                                                 model_over_time$Coefficient=='P_6_Match'|model_over_time$Coefficient=='P_7_Match'|
+                                                                 model_over_time$Coefficient=='P_8_Match'|model_over_time$Coefficient=='P_9_Match'|
+                                                                 model_over_time$Coefficient=='P_10_Match','Publisher','Interaction')))))
 ```
 ```{r, echo=F}
 ggplot(filter(model_over_time, Type=='Gender'), aes(x=Year, y=Estimate, colour=Coefficient))+
@@ -285,92 +338,160 @@ ggplot(filter(model_over_time, Type=='Publisher'), aes(x=Year, y=Estimate, colou
 
 ```
 
+\section{Eigen Regression Analysis}
+
 ```{r}
 # read in node data
-n = read.csv('C:/Users/jyoung22.ADND/Documents/Network Analysis/Eigen Analysis/REVIEWS_1965_2000_NODES_METADATA_EIGENS.csv')
-n1 = read.csv('C:/Users/jyoung22.ADND/Documents/Network Analysis/Eigen Analysis/REVIEWS_1965_1970_NODES_METADATA_EIGENS.csv')
-n2 = read.csv('C:/Users/jyoung22.ADND/Documents/Network Analysis/Eigen Analysis/REVIEWS_1971_1975_NODES_METADATA_EIGENS.csv')
-n3 = read.csv('C:/Users/jyoung22.ADND/Documents/Network Analysis/Eigen Analysis/REVIEWS_1976_1980_NODES_METADATA_EIGENS.csv')
-n4 = read.csv('C:/Users/jyoung22.ADND/Documents/Network Analysis/Eigen Analysis/REVIEWS_1981_1985_NODES_METADATA_EIGENS.csv')
-n5 = read.csv('C:/Users/jyoung22.ADND/Documents/Network Analysis/Eigen Analysis/REVIEWS_1986_1990_NODES_METADATA_EIGENS.csv')
-n6 = read.csv('C:/Users/jyoung22.ADND/Documents/Network Analysis/Eigen Analysis/REVIEWS_1991_1995_NODES_METADATA_EIGENS.csv')
-n7 = read.csv('C:/Users/jyoung22.ADND/Documents/Network Analysis/Eigen Analysis/REVIEWS_1996_2000_NODES_METADATA_EIGENS.csv')
+n = read.csv('C:/Users/jyoung22.ADND/Documents/Network Analysis/REVIEWS_1965_2000_NODES_METADATA_EIGENS_2.csv')
 
-n$GENDER = factor(ifelse(n$GENDER==1, 'Male',
-                  ifelse(n$GENDER==0, 'Female',NA)))
+# convert levels
+n$GENDER = factor(ifelse(n$GENDER==0, 'Male',
+                  ifelse(n$GENDER==1, 'Female',NA)),
+                  levels=c('Male','Female'))
 
 n$RACE = factor(ifelse(n$RACE==1, 'Black',
-                  ifelse(n$RACE==0, 'POC',
-                         ifelse(n$RACE==2, 'White',NA))))
+                  ifelse(n$RACE==2, 'POC',
+                         ifelse(n$RACE==0, 'White',NA))),
+                levels=c('White','Black','POC'))
 
-n$Uni_Eig = (n$EIGEN-mean(n$EIGEN))/(sqrt(length(n$EIGEN-1)*var(n$EIGEN)))
-n$Std_Eig = (n$EIGEN-mean(n$EIGEN))/(sqrt(var(n$EIGEN)))
-n$Cub_Eig = (n$EIGEN-min(n$EIGEN))/(max(n$EIGEN)-min(n$EIGEN))
+n$P3 = factor(n$P3)
+
+# create Year categories
+n$HalfDecades = factor(ifelse(n$YEAR>64 & n$YEAR<71, '65-70',
+                       ifelse(n$YEAR>70 & n$YEAR<76, '71-75',
+                            ifelse(n$YEAR>75 & n$YEAR<81,'76-80',
+                                    ifelse(n$YEAR>80 & n$YEAR<86, '81-85',
+                                        ifelse(n$YEAR>85 & n$YEAR<91,'86-90',
+                                               ifelse(n$YEAR>90 & n$YEAR<96, '91-95',
+                                                    ifelse(n$YEAR>95 | n$YEAR==00,'96-00',NA))))))))
+
+n$Decades = factor(ifelse(n$YEAR<70, '60-69',
+                       ifelse(n$YEAR>69 & n$YEAR<80, '70-79',
+                            ifelse(n$YEAR>79 & n$YEAR<90,'80-89',
+                                    ifelse(n$YEAR>89 & n$YEAR<=99, '90-99',
+                                        ifelse(n$YEAR==100 | n$YEAR==00,'00-09',NA))))))
+
+# RandomHouse titles
+rh = c("are you there god? it's me, margaret", 'a tidewater morning', 'red square (kandinsky). audio version', "the queen's gambit", 'the war between the tates', 'loon lake', 'the stepford wives', 'steps', "tough guys don't dance", 'good benito', 'brotherly love', "portnoy's complaint", 'footsteps of the hawk', 'creation', 'a month of sundays', 'white shark', 'the run of his life:', 'the december rose', 'civilwarland in bad decline', 'chimera', 'the fermata', 'the palace thief', 'the soloist', ', last notes from home', 'chesapeake', 'indian summer', 'centennial', 'earth', 'confessions of nat turner', 'may you be the mother of a hundred sons', 'the last don', 'when the war is over', 'poland', 'polar star', 'lucky bastard', 'invisible man', 'museums and women and other stories', 'the eagle kite', 'picturing will', 'space', 'family album', 'the male cross-dresser support group', 'turn of the century', "lost man's river", 'ragtime', 'the orchard keeper', 'the theory of everything', 'wanderers eastward, wanderers west', 'woman hollering creek and other stories', 'only children', 'blood meridian', 'the new gothic', 'a son of the circus', 'burr', 'the firm', 'this perfect day', 'the alienist', 'real people', 'music for chameleons', 'the afterlife and other stories (updike). audio version', 'the source', '1876', 'the collected stories of william humphrey', 'me and you', 'werewolves in their youth', 'collected stories of wallace stegner', 'one true thing')
+
+# Major publishers
+mp = c('Random House', 'Random Hous', 'Random House audio',
+       'Alfred A. Knopf', 'Knopf', 'Knopf Doubleday' ,'Knopf Doubleday Publishing','Knopf,',
+       'Ballantine', 'Ballantine Books',
+       'Modern Library',
+       'Library of America',
+       'Pantheon','Pantheon Books')
+
+n$RandomHouse = factor(ifelse(n$TITLE%in%rh,'RH','Other'), levels=c('Other','RH'))
+n$MajorPub = factor(ifelse(tolower(trimws(n$PUBLISHER))%in%tolower(mp),'Major','Other'), levels=c('Other','Major'))
+
+
 
 ggplot(n, aes(x=EIGEN))+geom_density()
-
-par(mfrow=c(2,2))
-plot(n$EIGEN, main='Non-Standardized')
-plot(n$Uni_Eig, main='Unitized')
-plot(n$Std_Eig, main='Standardized')
-plot(n$Uni_Eig, main='Cubitized')
-par(mfrow=c(1,1))
-# bind togetehr in one DF
-node_measures = bind_rows(n1, n2, n3, n4, n5, n6, n7)
-
+# normal assumption met
 ```
 
 
 ```{r}
-ggplot(na.omit(n), aes(x=YEAR, y=EIGENS_SCALED, colour=GENDER))+
-  facet_wrap(~RACE)+
-  geom_smooth()+
-  geom_point()+
-  ggtitle('Eigen Scores by Race and Gender')
-
 ggplot(na.omit(n), aes(x=YEAR, y=EIGEN, colour=GENDER))+
   facet_wrap(~RACE)+
   geom_smooth()+
   geom_point()+
-  ggtitle('Eigen Scores by Race and Gender')
+  labs(main='Eigen Scores by Race and Gender',
+       caption='LOESS smoothing used',
+       x='Year',
+       y='Eigen Score',
+       colour='Gender')
+
+ggplot(na.omit(n), aes(x=YEAR, y=EIGEN, colour=MajorPub))+
+#  facet_wrap(~GENDER)+
+  geom_smooth()+
+  geom_point()+
+  labs(main='Eigen Scores by Publisher',
+       caption='GAM smoothing used',
+       x='Year',
+       y='Eigen Score',
+       colour='Major Publisher')
+
+ggplot(na.omit(n), aes(x=YEAR, y=EIGEN, colour=MajorPub))+
+  facet_wrap(~GENDER)+
+  geom_smooth()+
+  geom_point()+
+  labs(main='Eigen Scores by Publisher',
+       caption='LOESS smoothing used',
+       x='Year',
+       y='Eigen Score',
+       colour='Major Publisher')
 ```
+
 
 ```{r}
-library(corrplot)
-corrplot(cor(amer_novels[,c('BothBlack' , 'BothWhite' , 'BothPOC' , 'BothMale' , 'BothFemale' ,
-        'ACAD_Match' , 'BLACK_Match' , 'ELITE_Match' , 'GENRE_Match' , 'LIT_Match' , 'MAIN_Match' , 'MISC_Match' , 'TRADE_Match' , 'nan_Match' , 
-        'P_0_Match' , 'P_1_Match' , 'P_2_Match' , 'P_3_Match' , 'P_4_Match' , 'P_5_Match' , 'P_6_Match' , 'P_7_Match' , 'P_8_Match' , 'P_9_Match' ,'P_10_Match')]))
-
-corrplot(cor(n[,c(5,6,7,9,10,11,12,13)]))
-```
-
-
-```{r, eval=F}
-n1_model = train(EIGEN~ GENDER + RACE + P2 + YEAR, #ELITE_COUNT + MAIN_COUNT + REVIEWS_COUNT +YEAR,
-                   data = na.omit(n1),
+# Major Pub only
+n_model = train(EIGEN~ GENDER + RACE  + HalfDecades + MajorPub + # main effects
+                  RACE:GENDER + RACE:HalfDecades + RACE:MajorPub + GENDER:HalfDecades + GENDER:MajorPub + HalfDecades:MajorPub + # first interactions
+                  GENDER:RACE:HalfDecades + GENDER:RACE:MajorPub,# + GENDER:HalfDecades:MajorPub + RACE:HalfDecades:MajorPub, + # 2nd level interactions, 2 NS
+                  #GENDER:RACE:HalfDecades:MajorPub, # 3rd level interactions # not significant
+                   data = na.omit(n),
                    method="glm",
                    family="gaussian",
                    trControl=trainControl(
                      method='cv',number=10
                    ))
 
-            summary(n1_model)
-            n1_model
+            summary(n_model)
+            n_model            
 
-n2_model = train(EIGEN~ GENDER + RACE + P2 + YEAR + ELITE_COUNT + MAIN_COUNT +YEAR,
-                   data = na.omit(n1),
-                   method="glm",
-                   family="gaussian",
-                   trControl=trainControl(
-                     method='cv',number=10
-                   ))
-
-            summary(n2_model)
-            n2_model
+            varImp(n_model)
             
+            plot(y=n_model$finalModel$residuals, x=n_model$finalModel$fitted.values, ylab='Residuals', main='Residual Plot') # resid
+            qqnorm(n_model$finalModel$residuals)# qq
+            
+            regplot(n_model, cex.axis = .5)
 ```
-```{r}            
+```{r,eval=F}
+# Random House only            
+n1_model = train(EIGEN~ GENDER + RACE  + HalfDecades + RandomHouse + # main effects
+                  RACE:GENDER + RACE:HalfDecades + RACE:RandomHouse + GENDER:HalfDecades + GENDER:RandomHouse + HalfDecades:RandomHouse + # first interactions
+                  GENDER:RACE:HalfDecades + GENDER:RACE:RandomHouse,# + GENDER:HalfDecades:RandomHouse + RACE:HalfDecades:RandomHouse + # 2nd level interactions, 2 NS
+                  #GENDER:RACE:HalfDecades:RandomHouse, # 3rd level interactions # not significant
+                   data = na.omit(n),
+                   method="glm",
+                   family="gaussian",
+                   trControl=trainControl(
+                     method='cv',number=10
+                   ))
+
             summary(n1_model)
+            n1_model            
+
+            varImp(n1_model)
+            
+            plot(y=n1_model$finalModel$residuals, x=n1_model$finalModel$fitted.values, ylab='Residuals', main='Residual Plot') # resid
+
+            qqnorm(n1_model$finalModel$residuals)# qq
+
+            
+# P3 only
+n3_model = train(EIGEN~ GENDER + RACE  + HalfDecades + P3 + # main effects
+                  RACE:GENDER + RACE:HalfDecades + RACE:P3 + GENDER:HalfDecades + GENDER:P3 + HalfDecades:P3,# + # first interactions
+                  #GENDER:RACE:HalfDecades + GENDER:RACE:P3,# + GENDER:HalfDecades:P3,# + RACE:HalfDecades:P3,# +  2nd level interactions, 2 NS
+                  #GENDER:RACE:HalfDecades:P3, # 3rd level interactions # not significant
+                   data = na.omit(n),
+                   method="glm",
+                   family="gaussian",
+                   trControl=trainControl(
+                     method='cv',number=10
+                   ))
+
+            summary(n3_model)
+            n3_model            
+
+            varImp(n3_model)
+            
+            plot(y=n3_model$finalModel$residuals, x=n3_model$finalModel$fitted.values, ylab='Residuals', main='Residual Plot') # resid
+            qqnorm(n3_model$finalModel$residuals)# qq            
 ```
 
+
+The above varImp function automatically scales the variable importance out of 100 to make it easier to interpret.
 
